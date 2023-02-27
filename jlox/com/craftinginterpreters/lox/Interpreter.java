@@ -1,17 +1,27 @@
 package com.craftinginterpreters.lox;
 
+import java.util.List;
+
+import com.craftinginterpreters.lox.Expr.Assign;
 import com.craftinginterpreters.lox.Expr.Binary;
 import com.craftinginterpreters.lox.Expr.Grouping;
 import com.craftinginterpreters.lox.Expr.Literal;
 import com.craftinginterpreters.lox.Expr.Unary;
+import com.craftinginterpreters.lox.Expr.Variable;
+import com.craftinginterpreters.lox.Stmt.Block;
+import com.craftinginterpreters.lox.Stmt.Expression;
+import com.craftinginterpreters.lox.Stmt.Print;
+import com.craftinginterpreters.lox.Stmt.Var;
 
-class Interpreter implements Expr.Visitor<Object> {
+class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
+    private Environment environment = new Environment();
 
-    void interpret(Expr expression){
-        try{
-            Object value = evaluate(expression);
-            System.out.println(stringify(value));
-        } catch(RuntimeError error){
+    void interpret(List<Stmt> statements) {
+        try {
+            for (Stmt statement : statements) {
+                execute(statement);
+            }
+        } catch (RuntimeError error) {
             Lox.runtimeError(error);
         }
     }
@@ -19,6 +29,23 @@ class Interpreter implements Expr.Visitor<Object> {
     private Object evaluate(Expr expr) {
         // Send back here from interpreters visitor implementation.
         return expr.accept(this);
+    }
+
+    private void execute(Stmt stmt) {
+        stmt.accept(this);
+    }
+
+    void executeBlock(List<Stmt> statements, Environment environment) {
+        Environment previous = this.environment;
+        try {
+            this.environment = environment;
+            for (Stmt statement : statements) {
+                execute(statement);
+            }
+        } finally {
+            this.environment = previous;
+        }
+
     }
 
     @Override
@@ -122,16 +149,59 @@ class Interpreter implements Expr.Visitor<Object> {
     }
 
     private String stringify(Object object) {
-        if(object == null) return "nill";
+        if (object == null)
+            return "nill";
 
-        if(object instanceof Double){
+        if (object instanceof Double) {
             String text = object.toString();
-            if(text.endsWith(".0")) {
+            if (text.endsWith(".0")) {
                 text = text.substring(0, text.length() - 2);
             }
             return text;
         }
         return object.toString();
+    }
+
+    @Override
+    public Void visitExpressionStmt(Expression stmt) {
+        evaluate(stmt.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitPrintStmt(Print stmt) {
+        Object value = evaluate(stmt.expression);
+        System.out.println(stringify(value));
+        return null;
+    }
+
+    @Override
+    public Void visitVarStmt(Var stmt) {
+        Object value = null;
+        if (stmt.initializer != null) {
+            value = evaluate(stmt.initializer);
+        }
+
+        environment.define(stmt.name.lexeme, value);
+        return null;
+    }
+
+    @Override
+    public Object visitVariableExpr(Variable expr) {
+        return environment.get(expr.name);
+    }
+
+    @Override
+    public Object visitAssignExpr(Assign expr) {
+        Object value = evaluate(expr.value);
+        environment.assign(expr.name, value);
+        return value;
+    }
+
+    @Override
+    public Void visitBlockStmt(Block stmt) {
+        executeBlock(stmt.statements, new Environment(environment));
+        return null;
     }
 
 }

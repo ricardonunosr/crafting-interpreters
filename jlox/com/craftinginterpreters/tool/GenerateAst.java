@@ -13,10 +13,19 @@ class GenerateAst {
         }
         String outputDir = args[0];
         defineAst(outputDir, "Expr", Arrays.asList(
+                "Assign : Token name, Expr value",
                 "Binary : Expr left, Token operator, Expr right",
                 "Grouping : Expr expression",
                 "Literal : Object value",
+                "Variable : Token name",
                 "Unary : Token operator, Expr right"));
+
+        defineAst(outputDir, "Stmt", Arrays.asList(
+                "Block : List<Stmt> statements",
+                "Expression : Expr expression",
+                "Print : Expr expression",
+                "Var : Token name, Expr initializer"
+                ));
     }
 
     private static void defineAst(String outputDir, String baseName, List<String> types) throws IOException {
@@ -28,7 +37,7 @@ class GenerateAst {
         writer.println("import java.util.List;");
         writer.println();
         writer.println("abstract class " + baseName + " {");
-        defineVisitor(writer,baseName,types);
+        defineVisitor(writer, baseName, types);
         // The AST classes.
         for (String type : types) {
             String className = type.split(":")[0].trim();
@@ -43,10 +52,10 @@ class GenerateAst {
         writer.close();
     }
 
-    private static void defineVisitor(PrintWriter writer, String baseName, List<String> types){
+    private static void defineVisitor(PrintWriter writer, String baseName, List<String> types) {
         writer.println("  interface Visitor<R> {");
 
-        for( String type: types){
+        for (String type : types) {
             String typeName = type.split(":")[0].trim();
             writer.println("    R visit" + typeName + baseName + "(" + typeName + " " + baseName.toLowerCase() + ");");
         }
@@ -72,7 +81,7 @@ class GenerateAst {
         writer.println("    @Override");
         writer.println("    <R> R accept(Visitor<R> visitor) {");
         writer.println("      return visitor.visit" +
-            className + baseName + "(this);");
+                className + baseName + "(this);");
         writer.println("    }");
 
         // Fields.
