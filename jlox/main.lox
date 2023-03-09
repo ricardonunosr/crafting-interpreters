@@ -13,5 +13,19 @@
 // counter(); // "2".
 
 // Class
-class Cake { taste() { var adjective = "delicious"; print "The " + this.flavor + " cake is " + adjective + "!"; } } var cake = Cake(); cake.flavor = "German chocolate";
-cake.taste();
+// class Cake { taste() { var adjective = "delicious"; print "The " + this.flavor + " cake is " + adjective + "!"; } } var cake = Cake(); cake.flavor = "German chocolate";
+// cake.taste();
+class Doughnut {
+  cook() {
+    print "Fry until golden brown.";
+  }
+}
+
+class BostonCream < Doughnut {
+  cook() {
+    super.cook();
+    print "Pipe full of custard and coat with chocolate.";
+  }
+}
+
+BostonCream().cook();
