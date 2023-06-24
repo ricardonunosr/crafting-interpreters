@@ -1,31 +1,9 @@
-// fun makeCounter() {
-//   var i = 0;
-//   fun count() {
-//     i = i + 1;
-//     print i;
-//   }
-
-//   return count;
-// }
-
-// var counter = makeCounter();
-// counter(); // "1".
-// counter(); // "2".
-
-// Class
-// class Cake { taste() { var adjective = "delicious"; print "The " + this.flavor + " cake is " + adjective + "!"; } } var cake = Cake(); cake.flavor = "German chocolate";
-// cake.taste();
-class Doughnut {
-  cook() {
-    print "Fry until golden brown.";
-  }
+fun fib(n) {
+  if (n < 2) return n;
+  return fib(n - 1) + fib(n - 2); 
 }
 
-class BostonCream < Doughnut {
-  cook() {
-    super.cook();
-    print "Pipe full of custard and coat with chocolate.";
-  }
-}
-
-BostonCream().cook();
+var before = clock();
+print fib(40);
+var after = clock();
+print after - before;

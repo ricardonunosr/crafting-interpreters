@@ -1,35 +1,17 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-typedef struct Node Node;
-struct Node {
-    int value;
-    Node* next;
-    Node* prev;
-};
+#include "chunk.h"
+#include "common.h"
+#include "debug.h"
 
-int main()
-{
-    printf("Hello World!\n");
-    Node * root = malloc(sizeof(Node));
-    root->value = 0;
-    root->next = NULL;
-    root->prev = NULL;
-    Node* current_node = root;
-    for(int i=1; i<10; i++){
-        Node* new_node = malloc(sizeof(Node));
-        new_node->value = i;
-        new_node->next = NULL;
-        new_node->prev = current_node;
-        current_node->next = new_node;
-        // Go next
-        current_node = new_node;
-    }
+int main(int argc, const char *argv[]) {
+  Chunk chunk;
+  initChunk(&chunk);
+  int constant = addConstant(&chunk, 1.2);
+  writeChunk(&chunk, OP_CONSTANT, 123);
+  writeChunk(&chunk, constant, 123);
+  writeChunk(&chunk, OP_RETURN, 123);
 
-    // Print doubly link
-    Node * node = root;
-    for(int i=0; i<10; i++){
-        printf("Value: %d\n", node->value);
-        node = node->next;
-    }
+  disassembleChunk(&chunk, "test chunk");
+  return 0;
 }
