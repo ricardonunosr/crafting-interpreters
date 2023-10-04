@@ -1,0 +1,9 @@
+Only implemented till chapter 25.
+
+Chapters left:
+- Closures
+- Garbage Collection
+- Classes and Instances
+- Methods and Initializers
+- Superclasses
+- Optimization
